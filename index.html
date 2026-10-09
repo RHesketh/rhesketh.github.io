@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shard Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="./assets/index-CBtSqybt.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DvpjEwi_.css">
+</head>
+<body>
+  <canvas id="view"></canvas>
+
+  <!-- title / loading -->
+  <div id="loading">
+    <div class="ld-bg"></div>
+    <div class="ld-inner">
+      <div class="ld-crest">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L92 20 V52 C92 74 72 90 50 96 C28 90 8 74 8 52 V20 Z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M50 20 L58 42 L80 42 L62 55 L69 77 L50 63 L31 77 L38 55 L20 42 L42 42 Z" fill="currentColor" opacity="0.85"/></svg>
+      </div>
+      <h1>Shard Explorer</h1>
+      <div class="ld-sub">A journey through a living shard of the world</div>
+      <div class="ld-bar"><div id="ld-fill"></div></div>
+      <div id="ld-status">Preparing the realm…</div>
+      <button id="ld-start" class="btn hidden">Enter the World</button>
+      <div class="ld-tip" id="ld-tip"></div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="compass"><div id="compass-strip"></div><div class="compass-needle"></div></div>
+    <div id="banner"><div class="banner-title"></div><div class="banner-sub"></div></div>
+    <div id="toast"></div>
+    <div id="prompt"></div>
+    <div id="info">
+      <div id="info-time"></div>
+      <div id="info-pos"></div>
+      <div id="info-fps"></div>
+    </div>
+    <div id="hints">
+      <div><kbd>W A S D</kbd> move &nbsp; <kbd>Shift</kbd> walk &nbsp; <kbd>Space</kbd> jump</div>
+      <div><kbd>Mouse</kbd> look &nbsp; <kbd>Wheel</kbd> zoom &nbsp; <kbd>V</kbd> first / third person</div>
+      <div><kbd>M</kbd> world map &amp; fast travel &nbsp; <kbd>F</kbd> free flight &nbsp; <kbd>T</kbd> advance time</div>
+      <div><kbd>Esc</kbd> menu &nbsp; <kbd>H</kbd> hide hints</div>
+    </div>
+    <div id="crosshair"></div>
+    <div id="fade"></div>
+  </div>
+
+  <!-- world map -->
+  <div id="map" class="hidden">
+    <div class="map-frame">
+      <canvas id="map-canvas"></canvas>
+      <div class="map-vignette"></div>
+      <div class="map-title">The Known World</div>
+      <div id="map-hover"></div>
+      <div id="map-confirm" class="hidden">
+        <div class="mc-title"></div>
+        <div class="mc-sub"></div>
+        <div class="mc-buttons"><button class="btn" id="mc-go">Travel</button><button class="btn ghost" id="mc-cancel">Cancel</button></div>
+      </div>
+      <div class="map-help">Scroll to zoom · Drag to pan · Click to fast travel · <kbd>M</kbd> close</div>
+    </div>
+    <div class="map-side">
+      <h2>Destinations</h2>
+      <div id="map-list"></div>
+    </div>
+  </div>
+
+  <!-- pause / settings -->
+  <div id="menu" class="hidden">
+    <div class="menu-panel">
+      <h2>Shard Explorer</h2>
+      <div class="menu-tabs"><button data-tab="settings" class="active">Settings</button><button data-tab="controls">Controls</button><button data-tab="about">About</button></div>
+      <div class="tab" data-tab="settings">
+        <label>Graphics quality
+          <select id="set-quality"><option value="low">Low</option><option value="medium">Medium</option><option value="high" selected>High</option><option value="ultra">Ultra</option></select>
+        </label>
+        <label>Brightness <input type="range" id="set-brightness" min="0.6" max="1.8" step="0.05" value="1" /><span id="set-brightness-v"></span></label>
+        <label>View distance <input type="range" id="set-view" min="130" max="420" step="10" value="260" /><span id="set-view-v"></span></label>
+        <label>Time of day <input type="range" id="set-time" min="0" max="24" step="0.05" value="9.5" /><span id="set-time-v"></span></label>
+        <label>Day length <select id="set-speed"><option value="0">Frozen</option><option value="0.00222">Slow (3 h)</option><option value="0.00889" selected>Normal (45 min)</option><option value="0.0571">Fast (7 min)</option></select></label>
+        <label>Weather <select id="set-weather"><option value="dynamic" selected>Changing</option><option value="clear">Always clear</option><option value="rain">Rainy</option></select></label>
+        <label>Field of view <input type="range" id="set-fov" min="50" max="95" step="1" value="68" /><span id="set-fov-v"></span></label>
+        <label>Mouse sensitivity <input type="range" id="set-sens" min="0.3" max="3" step="0.05" value="1" /><span id="set-sens-v"></span></label>
+        <label>Music volume <input type="range" id="set-music" min="0" max="1" step="0.05" value="0.5" /><span id="set-music-v"></span></label>
+        <label>Effects volume <input type="range" id="set-sfx" min="0" max="1" step="0.05" value="0.8" /><span id="set-sfx-v"></span></label>
+        <label class="check"><input type="checkbox" id="set-invert" /> Invert mouse Y</label>
+        <label class="check"><input type="checkbox" id="set-fps" /> Show frame rate</label>
+      </div>
+      <div class="tab hidden" data-tab="controls">
+        <table class="keys">
+          <tr><td><kbd>W A S D</kbd></td><td>Move (runs by default)</td></tr>
+          <tr><td><kbd>Shift</kbd></td><td>Walk</td></tr>
+          <tr><td><kbd>Space</kbd></td><td>Jump · rise while flying</td></tr>
+          <tr><td><kbd>Mouse</kbd></td><td>Look around (click to capture)</td></tr>
+          <tr><td><kbd>Wheel</kbd></td><td>Camera distance · scroll in for first person</td></tr>
+          <tr><td><kbd>V</kbd></td><td>Toggle first / third person</td></tr>
+          <tr><td><kbd>M</kbd></td><td>World map &amp; fast travel</td></tr>
+          <tr><td><kbd>E</kbd></td><td>Open / close doors · enter or leave dungeons</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Free flight (<kbd>C</kbd> descend, <kbd>Ctrl</kbd> boost)</td></tr>
+          <tr><td><kbd>T</kbd> / <kbd>Shift+T</kbd></td><td>Advance / rewind time by one hour</td></tr>
+          <tr><td><kbd>H</kbd></td><td>Toggle key hints</td></tr>
+        </table>
+      </div>
+      <div class="tab hidden" data-tab="about">
+        <p>Shard Explorer recreates a classic online fantasy world from its original 1998 map data, rendered in modern real-time 3D. Ground, wall and roof materials, trees, plants, rocks and props come from public-domain (CC0) photo scans by Poly Haven and ambientCG; buildings are assembled procedurally, and the layout of land, towns and dungeons comes from the map files.</p>
+      </div>
+      <button class="btn" id="menu-resume">Resume</button>
+    </div>
+  </div>
+
+</body>
+</html>
